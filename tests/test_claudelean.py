@@ -173,6 +173,12 @@ class TestProcess(Base):
         r = self.run_hook("prompt", json.dumps({"transcript_path": os.path.join(self.home, "none")}))
         self.assertEqual(r.stdout, "")
 
+    def test_stdin_is_read_as_utf8(self):
+        # Claude Code sends raw UTF-8; the Windows locale (cp1254) would turn "açıkla" into "aÃ§Ä±kla".
+        tp = self.transcript([prompt("fix", "u1"), reply(" ".join(["w"] * 400), "a1")])
+        r = self.run_hook("prompt", json.dumps({"transcript_path": tp, "prompt": "bunu açıkla"}, ensure_ascii=False))
+        self.assertEqual((r.returncode, r.stdout, r.stderr), (0, "", ""))
+
     def test_config(self):
         os.makedirs(os.path.join(self.home, ".claude"))
         with open(os.path.join(self.home, ".claude", "claudelean.json"), "w") as f:

@@ -218,7 +218,7 @@ def main(argv=None):
     p.add_argument("mode", choices=["pre", "prompt"])
     a = p.parse_args(argv)
     try:
-        data = json.loads(sys.stdin.read() or "{}")
+        data = json.loads(sys.stdin.buffer.read().decode("utf-8", errors="replace") or "{}")
         cfg = load_config()
         if a.mode == "pre":
             out = pre_event(data, cfg)
